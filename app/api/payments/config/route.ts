@@ -14,6 +14,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
+    // Check if the key is configured
+    if (!process.env.RAZORPAY_KEY_ID) {
+      console.error("Razorpay public key not configured")
+      return NextResponse.json({ message: "Payment gateway not configured" }, { status: 500 })
+    }
+
     // Only return the public key, not any secret keys
     return NextResponse.json({
       publicKey: process.env.RAZORPAY_KEY_ID,

@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase"
-
-// Initialize Razorpay
-const Razorpay = require("razorpay")
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-})
+import Razorpay from "razorpay"
 
 export async function POST(request: Request) {
   try {
@@ -42,6 +36,17 @@ export async function POST(request: Request) {
     if (booking.client_id !== session.user.id) {
       return NextResponse.json({ message: "Unauthorized to make payment for this booking" }, { status: 403 })
     }
+
+    // Initialize Razorpay with proper error handling
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error("Razorpay credentials not configured")
+      return NextResponse.json({ message: "Payment gateway not configured" }, { status: 500 })
+    }
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
 
     // Create a Razorpay order
     const options = {
