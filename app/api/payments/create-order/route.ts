@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     // Get request body
-    const { paymentMethodId, bookingId, amount } = await request.json()
+    const { bookingId, amount } = await request.json()
 
     if (!bookingId || !amount) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
@@ -48,8 +48,7 @@ export async function POST(request: Request) {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     })
 
-    // This endpoint is now just a proxy to create-order
-    // We'll redirect to the create-order functionality
+    // Create a Razorpay order
     const options = {
       amount: Math.round(Number(amount) * 100), // Convert to smallest currency unit (paise for INR)
       currency: "INR",
@@ -81,7 +80,8 @@ export async function POST(request: Request) {
       order,
     })
   } catch (error: any) {
-    console.error("Payment processing error:", error)
-    return NextResponse.json({ message: error.message || "Payment processing failed" }, { status: 500 })
+    console.error("Order creation error:", error)
+
+    return NextResponse.json({ message: error.message || "Order creation failed" }, { status: 500 })
   }
 }

@@ -38,7 +38,7 @@ export default function LocationTracker({ booking, isLaborer = false }: Location
   useEffect(() => {
     const loadGoogleMapsScript = () => {
       const script = document.createElement("script")
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`
+      script.src = `https://maps.googleapis.com/maps/api/js?libraries=places`
       script.async = true
       script.defer = true
       document.head.appendChild(script)
