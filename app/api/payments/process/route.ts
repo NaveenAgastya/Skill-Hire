@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase"
-import Razorpay from "razorpay"
+import Stripe from "stripe"
+
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2023-10-16",
+})
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +23,7 @@ export async function POST(request: Request) {
     // Get request body
     const { paymentMethodId, bookingId, amount } = await request.json()
 
-    if (!bookingId || !amount) {
+    if (!paymentMethodId || !bookingId || !amount) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
     }
 
@@ -37,51 +42,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Unauthorized to make payment for this booking" }, { status: 403 })
     }
 
-    // Initialize Razorpay with proper error handling
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-      console.error("Razorpay credentials not configured")
-      return NextResponse.json({ message: "Payment gateway not configured" }, { status: 500 })
-    }
-
-    const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    // Create payment intent with Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(Number(amount) * 100), // Convert to cents
+      currency: "usd",
+      payment_method: paymentMethodId,
+      confirm: true,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     })
 
-    // This endpoint is now just a proxy to create-order
-    // We'll redirect to the create-order functionality
-    const options = {
-      amount: Math.round(Number(amount) * 100), // Convert to smallest currency unit (paise for INR)
-      currency: "INR",
-      receipt: `booking_${bookingId}`,
-      payment_capture: 1, // Auto-capture
-      notes: {
-        booking_id: bookingId,
-        user_id: session.user.id,
-      },
-    }
-
-    const order = await razorpay.orders.create(options)
-
-    // Save order reference in database
+    // Save payment record
     const { error: paymentError } = await supabase.from("payments").insert({
       booking_id: bookingId,
       amount,
-      transaction_id: order.id,
-      payment_method: "razorpay",
-      status: "pending",
+      transaction_id: paymentIntent.id,
+      payment_method: "card",
+      status: paymentIntent.status === "succeeded" ? "completed" : "pending",
     })
 
     if (paymentError) {
       console.error("Error saving payment record:", paymentError)
     }
 
+    // Update booking status if payment succeeded
+    if (paymentIntent.status === "succeeded") {
+      await supabase.from("bookings").update({ status: "in_progress" }).eq("id", bookingId)
+
+      // Create notification for laborer
+      await supabase.from("notifications").insert({
+        user_id: booking.laborer_id,
+        type: "payment",
+        title: "Payment Received",
+        message: `Payment of $${Number(amount).toFixed(2)} has been received for booking "${booking.title}"`,
+        is_read: false,
+      })
+    }
+
     return NextResponse.json({
       success: true,
-      order,
+      paymentIntentId: paymentIntent.id,
+      status: paymentIntent.status,
     })
   } catch (error: any) {
     console.error("Payment processing error:", error)
+
     return NextResponse.json({ message: error.message || "Payment processing failed" }, { status: 500 })
   }
 }

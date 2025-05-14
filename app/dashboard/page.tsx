@@ -101,7 +101,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     {profile?.role === "client" ? "Total Spent" : "Total Earnings"}
                   </p>
-                  <h3 className="text-2xl font-bold mt-1">₹{Number(totalEarnings.toFixed(2))}</h3>
+                  <h3 className="text-2xl font-bold mt-1">${totalEarnings.toFixed(2)}</h3>
                 </div>
                 <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
                   <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                                   {booking.start_time.slice(0, 5)}
                                 </div>
                                 <div className="flex items-center">
-                                  <DollarSign className="h-3 w-3 mr-1" />₹{Number(booking.hourly_rate).toFixed(2)}/hr
+                                  <DollarSign className="h-3 w-3 mr-1" />${Number(booking.hourly_rate).toFixed(2)}/hr
                                 </div>
                                 <div className="flex items-center">
                                   <Clock className="h-3 w-3 mr-1" />
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                                 </div>
                                 <div className="flex items-center">
                                   <DollarSign className="h-3 w-3 mr-1" />
-                                  Total: ₹{Number(booking.total_amount).toFixed(2)}
+                                  Total: ${Number(booking.total_amount).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -315,14 +315,13 @@ export default function DashboardPage() {
                                 <div>
                                   <p className="font-medium">{relatedBooking?.title || "Payment"}</p>
                                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {new Date(payment.created_at).toLocaleDateString()} •
-                                    {payment.payment_method === "razorpay" ? "Razorpay" : payment.payment_method} • ID:{" "}
+                                    {new Date(payment.created_at).toLocaleDateString()} •{payment.payment_method} • ID:{" "}
                                     {payment.transaction_id.slice(0, 8)}...
                                   </p>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="font-medium">₹{Number(payment.amount).toFixed(2)}</p>
+                                <p className="font-medium">${Number(payment.amount).toFixed(2)}</p>
                                 <Badge
                                   variant={
                                     payment.status === "completed"
