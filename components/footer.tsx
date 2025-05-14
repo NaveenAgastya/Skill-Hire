@@ -133,22 +133,7 @@ export default function Footer() {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
+              
               <li>
                 <Link
                   href="/terms"
@@ -162,7 +147,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-800 mt-12 pt-8 text-center text-gray-500 dark:text-gray-400">
-          <p>&copy; {new Date().getFullYear()} SkillHire. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SkillHire. All rights reserved.Developed By Naveen, Harsha, Varun</p>
         </div>
       </div>
     </footer>
