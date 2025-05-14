@@ -16,25 +16,12 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Menu, X, MessageSquare, Bell, User, LogOut, Settings } from "lucide-react"
-import { useAuth } from "@/contexts/auth-context"
+import { Menu, X, MessageSquare, Bell } from "lucide-react"
 
 export default function Navbar() {
-  const { user, profile, signOut } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [unreadNotifications, setUnreadNotifications] = useState(0)
-  const [unreadMessages, setUnreadMessages] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,15 +35,6 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
-  // Fetch unread notifications and messages
-  useEffect(() => {
-    if (user) {
-      // This would be replaced with actual Supabase queries
-      setUnreadNotifications(3)
-      setUnreadMessages(2)
-    }
-  }, [user])
 
   return (
     <header
@@ -137,72 +115,23 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-2">
-            {user ? (
-              <>
-                <Button asChild variant="ghost" size="icon" className="rounded-full relative">
-                  <Link href="/chat">
-                    <MessageSquare className="h-5 w-5" />
-                    {unreadMessages > 0 && (
-                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
-                        {unreadMessages}
-                      </span>
-                    )}
-                  </Link>
-                </Button>
-                <Button asChild variant="ghost" size="icon" className="rounded-full relative">
-                  <Link href="/notifications">
-                    <Bell className="h-5 w-5" />
-                    {unreadNotifications > 0 && (
-                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
-                        {unreadNotifications}
-                      </span>
-                    )}
-                  </Link>
-                </Button>
-                <ModeToggle />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 ml-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder.svg?height=32&width=32" alt={profile?.display_name || "User"} />
-                        <AvatarFallback>{profile?.display_name?.charAt(0) || "U"}</AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <ModeToggle />
-                <Button asChild variant="outline" className="rounded-full">
-                  <Link href="/auth/login">Sign In</Link>
-                </Button>
-                <Button asChild className="rounded-full">
-                  <Link href="/auth/signup">Sign Up</Link>
-                </Button>
-              </>
-            )}
+            <Button asChild variant="ghost" size="icon" className="rounded-full">
+              <Link href="/chat">
+                <MessageSquare className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="icon" className="rounded-full">
+              <Link href="/notifications">
+                <Bell className="h-5 w-5" />
+              </Link>
+            </Button>
+            <ModeToggle />
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href="/auth/login">Sign In</Link>
+            </Button>
+            <Button asChild className="rounded-full">
+              <Link href="/auth/signup">Sign Up</Link>
+            </Button>
           </div>
 
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -229,49 +158,16 @@ export default function Navbar() {
                   Messages
                 </Link>
                 <div className="flex flex-col gap-2 mt-4">
-                  {user ? (
-                    <>
-                      <div className="flex items-center gap-3 mb-4">
-                        <Avatar>
-                          <AvatarImage
-                            src="/placeholder.svg?height=40&width=40"
-                            alt={profile?.display_name || "User"}
-                          />
-                          <AvatarFallback>{profile?.display_name?.charAt(0) || "U"}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{profile?.display_name || "User"}</p>
-                          <p className="text-sm text-gray-500">{profile?.email}</p>
-                        </div>
-                      </div>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                          Profile
-                        </Link>
-                      </Button>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                          Dashboard
-                        </Link>
-                      </Button>
-                      <Button onClick={() => signOut()} className="w-full">
-                        Log out
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                          Sign In
-                        </Link>
-                      </Button>
-                      <Button asChild className="w-full">
-                        <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                          Sign Up
-                        </Link>
-                      </Button>
-                    </>
-                  )}
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button asChild className="w-full">
+                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      Sign Up
+                    </Link>
+                  </Button>
                   <div className="mt-4 flex justify-center">
                     <ModeToggle />
                   </div>

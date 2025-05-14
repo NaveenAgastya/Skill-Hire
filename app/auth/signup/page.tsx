@@ -4,7 +4,6 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,13 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { motion } from "framer-motion"
 import { ArrowLeft, Loader2 } from "lucide-react"
-import { useAuth } from "@/contexts/auth-context"
-import { useToast } from "@/hooks/use-toast"
 
 export default function SignupPage() {
-  const { signUp } = useAuth()
-  const { toast } = useToast()
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: "",
@@ -45,50 +39,13 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!formData.agreeTerms) {
-      toast({
-        variant: "destructive",
-        title: "Terms and Conditions",
-        description: "You must agree to the terms and conditions to create an account.",
-      })
-      return
-    }
-
     setIsLoading(true)
 
-    try {
-      const { error, user } = await signUp(formData.email, formData.password, {
-        full_name: `${formData.firstName} ${formData.lastName}`,
-        display_name: `${formData.firstName} ${formData.lastName}`,
-        role: formData.accountType as "client" | "laborer",
-      })
-
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Signup failed",
-          description: error.message || "Please check your information and try again.",
-        })
-      } else {
-        toast({
-          title: "Account created",
-          description: "Your account has been created successfully. Please check your email for verification.",
-        })
-
-        // If using email confirmation, redirect to confirmation page
-        // Otherwise, redirect to dashboard or profile completion
-        router.push("/auth/verify-email")
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Signup failed",
-        description: "An unexpected error occurred. Please try again.",
-      })
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
       setIsLoading(false)
-    }
+      // Redirect would happen here
+    }, 1500)
   }
 
   return (
@@ -161,8 +118,8 @@ export default function SignupPage() {
                     <SelectValue placeholder="Select account type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="client">Client (I want to hire)</SelectItem>
-                    <SelectItem value="laborer">Worker (I want to find work)</SelectItem>
+                    <SelectItem value="worker">Worker (I want to find work)</SelectItem>
+                    <SelectItem value="employer">Employer (I want to hire)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
